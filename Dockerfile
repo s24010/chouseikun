@@ -21,28 +21,23 @@ WORKDIR /app
 
 # 先複製 composer 檔案
 COPY composer.json ./
-# 如果有 composer.lock 也複製
 COPY composer.lock* ./
 
 # 允許 Composer 以 root 執行
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
-# 診斷和安裝
-RUN echo "PHP Version:" && php -v && \
-    echo "Composer Version:" && composer --version && \
-    echo "PHP Extensions:" && php -m && \
-    echo "Starting composer install..." && \
-    composer install --no-dev --optimize-autoloader --no-scripts -vvv 2>&1 || \
-    (echo "Composer install failed with exit code $?" && \
-     echo "Composer diagnose:" && \
-     composer diagnose && \
-     exit 1)
+# 安裝依賴
+RUN composer install --no-dev --optimize-autoloader --no-scripts
 
 # 複製其餘的專案檔案
 COPY . .
 
-# 設定 config 目錄權限
-RUN chmod -R 777 tmp logs
+# 創建必要的目錄並設定權限（如果不存在）
+RUN mkdir -p tmp logs && \
+    chmod -R 777 tmp logs
+
+# 執行 post-install scripts
+RUN composer run-script post-install-cmd --no-dev || true
 
 # 設定 PORT
 ENV PORT=10000

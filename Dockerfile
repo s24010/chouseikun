@@ -26,18 +26,22 @@ COPY composer.lock* ./
 # 允許 Composer 以 root 執行
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
-# 安裝依賴
-RUN composer install --no-dev --optimize-autoloader --no-scripts
+# 安裝依賴（包含 dev 依賴）
+RUN composer install --optimize-autoloader --no-scripts
 
 # 複製其餘的專案檔案
 COPY . .
 
-# 創建必要的目錄並設定權限（如果不存在）
+# 創建必要的目錄並設定權限
 RUN mkdir -p tmp logs && \
     chmod -R 777 tmp logs
 
+# 設定環境為 production
+ENV APP_ENV=production
+ENV DEBUG=false
+
 # 執行 post-install scripts
-RUN composer run-script post-install-cmd --no-dev || true
+RUN composer run-script post-install-cmd || true
 
 # 設定 PORT
 ENV PORT=10000

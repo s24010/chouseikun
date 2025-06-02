@@ -8,9 +8,10 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     libzip-dev \
+    libicu-dev \
     zip \
     unzip \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip intl
 
 # 安裝 Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -19,20 +20,29 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /app
 
 # 先複製 composer 檔案
-COPY composer.json composer.lock* ./
+COPY composer.json ./
+# 如果有 composer.lock 也複製
+COPY composer.lock* ./
 
 # 允許 Composer 以 root 執行
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
-# 安裝依賴（加入更多除錯資訊）
-RUN composer install --no-dev --optimize-autoloader --no-scripts --verbose || \
-    (echo "Composer install failed" && cat /app/composer.json && exit 1)
+# 診斷和安裝
+RUN echo "PHP Version:" && php -v && \
+    echo "Composer Version:" && composer --version && \
+    echo "PHP Extensions:" && php -m && \
+    echo "Starting composer install..." && \
+    composer install --no-dev --optimize-autoloader --no-scripts -vvv 2>&1 || \
+    (echo "Composer install failed with exit code $?" && \
+     echo "Composer diagnose:" && \
+     composer diagnose && \
+     exit 1)
 
 # 複製其餘的專案檔案
 COPY . .
 
-# 執行 post-install scripts
-RUN composer run-script post-install-cmd --no-dev || true
+# 設定 config 目錄權限
+RUN chmod -R 777 tmp logs
 
 # 設定 PORT
 ENV PORT=10000

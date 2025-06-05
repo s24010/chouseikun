@@ -19,6 +19,7 @@ namespace App\Controller;
 use Cake\Controller\Controller;
 use Cake\Http\Client;
 use Cake\Http\Cookie\Cookie; // ★ Cookieクラスをインポート
+use Cake\Core\Configure; // ★ Configureクラスをインポート
 // use Cake\Log\Log; // ★ 必要に応じてログ出力のために追加
 
 /**
@@ -68,7 +69,8 @@ class AppController extends Controller
             $http = new Client([
                 'timeout' => 10 // APIのタイムアウトを10秒に設定 (例)
             ]);
-            $apiUrl = 'https://chouseikun.onrender.com/creator/init'; // APIエンドポイント
+            $apiBaseUrl = Configure::read('Api.url'); // 設定からAPI URLを読み込む
+            $apiUrl = $apiBaseUrl . '/creator/init'; // APIエンドポイント
 
             try {
                 $response = $http->post($apiUrl); // POSTリクエストを送信

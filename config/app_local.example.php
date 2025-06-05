@@ -91,4 +91,13 @@ return [
             'url' => env('EMAIL_TRANSPORT_DEFAULT_URL', null),
         ],
     ],
+
+    /*
+     * API configuration
+     *
+     * Configure the external API endpoint for local development
+     */
+    'Api' => [
+        'url' => env('API_URL', 'https://chouseikun.onrender.com'),
+    ],
 ];

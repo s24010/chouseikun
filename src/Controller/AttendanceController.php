@@ -7,6 +7,7 @@ use App\Controller\AppController;
 use Cake\Http\Client;
 // use Cake\Http\Exception\NotFoundException; // 必要に応じて使用
 use Cake\Log\Log;
+use Cake\Core\Configure;
 
 class AttendanceController extends AppController
 {
@@ -31,7 +32,8 @@ class AttendanceController extends AppController
         $applicantsDataForView = ['applicant_list' => []]; 
 
         // 1. イベントの詳細情報の取得
-        $eventDetailsApiUrl = "https://chouseikun.onrender.com/event/{$eventId}";
+        $apiBaseUrl = Configure::read('Api.url'); // 設定からAPI URLを読み込む
+        $eventDetailsApiUrl = $apiBaseUrl . "/event/{$eventId}";
         try {
             $eventDetailsResponse = $http->get($eventDetailsApiUrl);
             if ($eventDetailsResponse->isOk()) {
@@ -54,7 +56,8 @@ class AttendanceController extends AppController
         }
 
         // 2. 既存の出欠者情報の取得と加工
-        $applicantsApiUrl = "https://chouseikun.onrender.com/event/{$eventId}/applicants";
+        $apiBaseUrl = Configure::read('Api.url'); // 設定からAPI URLを読み込む
+        $applicantsApiUrl = $apiBaseUrl . "/event/{$eventId}/applicants";
         try {
             $applicantsResponse = $http->get($applicantsApiUrl);
             if ($applicantsResponse->isOk()) {
@@ -174,7 +177,8 @@ class AttendanceController extends AppController
             'memo' => $memo,
         ];
         $http = new Client(['timeout' => 10]);
-        $apiUrl = "https://chouseikun.onrender.com/applicant/edit/{$applicantId}";
+        $apiBaseUrl = Configure::read('Api.url'); // 設定からAPI URLを読み込む
+        $apiUrl = $apiBaseUrl . "/applicant/edit/{$applicantId}";
         $successMessage = '出欠情報を更新しました。';
         $failureMessagePrefix = '出欠情報の更新に失敗しました。';
 
@@ -241,7 +245,8 @@ class AttendanceController extends AppController
             'memo' => $memo,
         ];
         $http = new Client(['timeout' => 10]);
-        $apiUrl = 'https://chouseikun.onrender.com/applicant/create';
+        $apiBaseUrl = Configure::read('Api.url'); // 設定からAPI URLを読み込む
+        $apiUrl = $apiBaseUrl . '/applicant/create';
         $successMessage = '出欠情報を送信しました。';
         $failureMessagePrefix = '出欠情報の送信に失敗しました。';
 

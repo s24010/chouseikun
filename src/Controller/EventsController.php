@@ -7,6 +7,7 @@ use App\Controller\AppController; // AppController を継承
 use Cake\Http\Client;
 use Cake\Http\Exception\NotFoundException; // NotFoundException をインポート
 use Cake\Log\Log; // 必要に応じてログ出力のために追加
+use Cake\Core\Configure; // env.php から API URL を取得
 
 class EventsController extends AppController // 親クラスを AppController に変更
 {
@@ -70,7 +71,8 @@ class EventsController extends AppController // 親クラスを AppController �
             ];
 
             $http = new Client(['timeout' => 10]);
-            $apiUrl = 'https://chouseikun.onrender.com/event/create';
+            $apiBaseUrl = Configure::read('Api.url'); // 設定からAPI URLを読み込む
+            $apiUrl = $apiBaseUrl . '/event/create';
 
             try {
                 $response = $http->post($apiUrl, json_encode($payload), [
@@ -121,7 +123,8 @@ class EventsController extends AppController // 親クラスを AppController �
         }
 
         $http = new Client(['timeout' => 10]);
-        $apiUrl = "https://chouseikun.onrender.com/event/{$eventId}";
+        $apiBaseUrl = Configure::read('Api.url'); // 設定からAPI URLを読み込む
+        $apiUrl = $apiBaseUrl . "/event/{$eventId}";
 
         try {
             $response = $http->get($apiUrl);
@@ -213,7 +216,8 @@ class EventsController extends AppController // 親クラスを AppController �
         ];
 
         $http = new Client(['timeout' => 10]);
-        $apiUrl = "https://chouseikun.onrender.com/event/{$eventId}";
+        $apiBaseUrl = Configure::read('Api.url'); // 設定からAPI URLを読み込む
+        $apiUrl = $apiBaseUrl . "/event/{$eventId}";
 
         try {
             $response = $http->put($apiUrl, json_encode($payload), [
@@ -247,7 +251,8 @@ class EventsController extends AppController // 親クラスを AppController �
         }
 
         $http = new Client(['timeout' => 10]);
-        $apiUrl = "https://chouseikun.onrender.com/event/by-user/{$creatorId}";
+        $apiBaseUrl = Configure::read('Api.url'); // 設定からAPI URLを読み込む
+        $apiUrl = $apiBaseUrl . "/event/by-user/{$creatorId}";
 
         try {
             $response = $http->get($apiUrl);
@@ -294,7 +299,8 @@ class EventsController extends AppController // 親クラスを AppController �
         // ★★★ 所有者確認ここまで ★★★
 
         $http = new Client(['timeout' => 10]);
-        $apiUrl = "https://chouseikun.onrender.com/event/{$eventId}";
+        $apiBaseUrl = Configure::read('Api.url'); // 設定からAPI URLを読み込む
+        $apiUrl = $apiBaseUrl . "/event/{$eventId}";
 
         try {
             // API仕様: DELETE /event/{event_id}
@@ -377,7 +383,8 @@ class EventsController extends AppController // 親クラスを AppController �
         $this->set('fetchedUserId', $userIdToFetch);
 
         $http = new Client(['timeout' => 10]);
-        $apiUrl = "https://chouseikun.onrender.com/event/by-user/{$userIdToFetch}";
+        $apiBaseUrl = Configure::read('Api.url'); // 設定からAPI URLを読み込む
+        $apiUrl = $apiBaseUrl . "/event/by-user/{$userIdToFetch}";
         try {
             $response = $http->get($apiUrl);
             if ($response->isOk()) {
@@ -402,7 +409,8 @@ class EventsController extends AppController // 親クラスを AppController �
         }
 
         $http = new Client(['timeout' => 10]);
-        $apiUrl = "https://chouseikun.onrender.com/event/{$eventId}/applicants";
+        $apiBaseUrl = Configure::read('Api.url'); // 設定からAPI URLを読み込む
+        $apiUrl = $apiBaseUrl . "/event/{$eventId}/applicants";
         try {
             $response = $http->get($apiUrl);
             if ($response->isOk()) {
@@ -429,7 +437,8 @@ class EventsController extends AppController // 親クラスを AppController �
     private function _getEventDetailsFromServer(string $eventId): ?array
     {
         $http = new Client(['timeout' => 5]);
-        $apiUrl = "https://chouseikun.onrender.com/event/{$eventId}";
+        $apiBaseUrl = Configure::read('Api.url'); // 設定からAPI URLを読み込む
+        $apiUrl = $apiBaseUrl . "/event/{$eventId}";
         try {
             $response = $http->get($apiUrl);
             if ($response->isOk()) {

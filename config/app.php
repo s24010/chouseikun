@@ -68,6 +68,15 @@ return [
     ],
 
     /*
+     * API configuration
+     *
+     * Configure the external API endpoint
+     */
+    'Api' => [
+        'url' => env('API_URL', 'https://chouseikun.onrender.com'),
+    ],
+
+    /*
      * Security and encryption configuration
      *
      * - salt - A random string used in security hashing methods.
@@ -428,7 +437,7 @@ return [
      *  - `forceEnable` - Force DebugKit to display. Careful with this, it is usually safer to simply whitelist
      *     your local TLDs.
      *  - `ignorePathsPattern` - Regex pattern (including delimiter) to ignore paths.
-     *     DebugKit won’t save data for request URLs that match this regex.
+     *     DebugKit won't save data for request URLs that match this regex.
      *  - `ignoreAuthorization` - Set to true to ignore Cake Authorization plugin for DebugKit requests.
      *     Disabled by default.
      *  - `maxDepth` - Defines how many levels of nested data should be shown in general for debug output.

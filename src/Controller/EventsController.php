@@ -6,7 +6,7 @@ namespace App\Controller;
 use App\Controller\AppController; // AppController を継承
 use Cake\Http\Client;
 use Cake\Http\Exception\NotFoundException; // NotFoundException をインポート
-use Cake\Log\Log; // 必要に応じてログ出力のために追加
+//use Cake\Log\Log; // 必要に応じてログ出力のために追加
 
 class EventsController extends AppController // 親クラスを AppController に変更
 {
@@ -87,14 +87,14 @@ class EventsController extends AppController // 親クラスを AppController �
                         return $this->redirect(['controller' => 'Attendance', 'action' => 'attend', $eventId]);
                     } else {
                         $this->Flash->error('イベント作成には成功しましたが、イベントIDの取得に失敗しました。');
-                        Log::error("Event created, but 'id' not found in API response from " . $apiUrl . ". Response: " . (string)$response->getBody());
+                        //log::error("Event created, but 'id' not found in API response from " . $apiUrl . ". Response: " . (string)$response->getBody());
                     }
                 } else {
                     $this->_handleApiErrorResponse($response, 'イベント作成');
                 }
             } catch (\Exception $e) {
                 $this->Flash->error('イベント作成中に予期せぬ通信エラーが発生しました。');
-                Log::error('Event creation API connection error to ' . $apiUrl . ': ' . $e->getMessage());
+                //log::error('Event creation API connection error to ' . $apiUrl . ': ' . $e->getMessage());
             }
             $this->_fetchAndSetCreatedEvents($creatorId);
             $this->set('submittedData', $data);
@@ -135,12 +135,12 @@ class EventsController extends AppController // 親クラスを AppController �
                 $this->render('koushin'); // koushin.php をビューとして使用
             } else {
                 $this->Flash->error('編集対象のイベント情報の取得に失敗しました。(APIエラー: ' . $response->getStatusCode() . ')');
-                Log::error("Failed to fetch event for editing (ID: {$eventId}). API error {$response->getStatusCode()} from {$apiUrl}. Body: " . (string)$response->getBody());
+                //log::error("Failed to fetch event for editing (ID: {$eventId}). API error {$response->getStatusCode()} from {$apiUrl}. Body: " . (string)$response->getBody());
                 return $this->redirect(['action' => 'create']);
             }
         } catch (\Exception $e) {
             $this->Flash->error('イベント情報取得中に通信エラーが発生しました。');
-            Log::error("Connection error while fetching event for editing (ID: {$eventId}) from {$apiUrl}: " . $e->getMessage());
+            //Log::error("Connection error while fetching event for editing (ID: {$eventId}) from {$apiUrl}: " . $e->getMessage());
             return $this->redirect(['action' => 'create']);
         }
     }
@@ -230,7 +230,7 @@ class EventsController extends AppController // 親クラスを AppController �
             }
         } catch (\Exception $e) {
             $this->Flash->error('イベント更新中に予期せぬ通信エラーが発生しました。');
-            Log::error("Event update API connection error for event {$eventId}: " . $e->getMessage());
+            //log::error("Event update API connection error for event {$eventId}: " . $e->getMessage());
             return $this->redirect(['action' => 'edit', $eventId]);
         }
     }
@@ -256,11 +256,11 @@ class EventsController extends AppController // 親クラスを AppController �
                 $this->set('createdEvents', $result['event_list'] ?? []);
             } else {
                 $this->set('createdEvents', []);
-                Log::warning("Failed to fetch created events for creator {$creatorId}. API error {$response->getStatusCode()} from {$apiUrl}. Body: " . (string)$response->getBody());
+                //log::warning("Failed to fetch created events for creator {$creatorId}. API error {$response->getStatusCode()} from {$apiUrl}. Body: " . (string)$response->getBody());
             }
         } catch (\Exception $e) {
             $this->set('createdEvents', []);
-            Log::error("Connection error while fetching created events for creator {$creatorId} from {$apiUrl}: " . $e->getMessage());
+            //log::error("Connection error while fetching created events for creator {$creatorId} from {$apiUrl}: " . $e->getMessage());
         }
     }
 
@@ -309,7 +309,7 @@ class EventsController extends AppController // 親クラスを AppController �
         } catch (\Exception $e) {
             // ネットワークエラーなど、API通信自体に失敗した場合
             $this->Flash->error('イベント削除中に予期せぬ通信エラーが発生しました。');
-            Log::error("Event deletion API connection error for event {$eventId}: " . $e->getMessage());
+            //log::error("Event deletion API connection error for event {$eventId}: " . $e->getMessage());
         }
 
         return $this->redirect(['action' => 'create']); // 処理後、イベント作成/一覧ページに戻る
@@ -356,7 +356,7 @@ class EventsController extends AppController // 親クラスを AppController �
         }
         $this->Flash->error($flashErrorMessage);
         $currentCreatorId = $this->getOrSetCreatorId(); // エラーログ用に取得
-        Log::warning("API error during '{$actionDescription}' for creator {$currentCreatorId}: HTTP {$statusCode}. Response: " . (string)$response->getBody());
+        //log::warning("API error during '{$actionDescription}' for creator {$currentCreatorId}: HTTP {$statusCode}. Response: " . (string)$response->getBody());
     }
 
 
@@ -390,7 +390,7 @@ class EventsController extends AppController // 親クラスを AppController �
         } catch (\Exception $e) {
             $this->Flash->error("ユーザー ({$userIdToFetch}) のイベント取得中に通信エラーが発生しました。");
             $this->set('userEvents', []);
-            Log::error("Error fetching events for user {$userIdToFetch} from {$apiUrl}: " . $e->getMessage());
+            //log::error("Error fetching events for user {$userIdToFetch} from {$apiUrl}: " . $e->getMessage());
         }
     }
 
@@ -416,7 +416,7 @@ class EventsController extends AppController // 親クラスを AppController �
         } catch (\Exception $e) {
             $this->Flash->error("イベントID ({$eventId}) の出欠者情報取得中に通信エラーが発生しました。");
             $this->set('applicants', []);
-            Log::error("Error fetching applicants for event {$eventId} from {$apiUrl}: " . $e->getMessage());
+            //log::error("Error fetching applicants for event {$eventId} from {$apiUrl}: " . $e->getMessage());
         }
     }
 
@@ -435,9 +435,9 @@ class EventsController extends AppController // 親クラスを AppController �
             if ($response->isOk()) {
                 return $response->getJson();
             }
-            Log::warning("Failed to fetch event details from server for ID {$eventId}. Status: " . $response->getStatusCode());
+            //log::warning("Failed to fetch event details from server for ID {$eventId}. Status: " . $response->getStatusCode());
         } catch (\Exception $e) {
-            Log::error("Exception while fetching event details from server for ID {$eventId}: " . $e->getMessage());
+            //log::error("Exception while fetching event details from server for ID {$eventId}: " . $e->getMessage());
         }
         return null;
     }

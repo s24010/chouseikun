@@ -6,7 +6,7 @@ namespace App\Controller;
 use App\Controller\AppController;
 use Cake\Http\Client;
 // use Cake\Http\Exception\NotFoundException; // 必要に応じて使用
-use Cake\Log\Log;
+//use Cake\Log\Log;
 
 class AttendanceController extends AppController
 {
@@ -36,14 +36,14 @@ class AttendanceController extends AppController
             $eventDetailsResponse = $http->get($eventDetailsApiUrl);
             if ($eventDetailsResponse->isOk()) {
                 $eventInfo = $eventDetailsResponse->getJson();
-                Log::debug("EventInfo from API (raw)", ['eventId' => $eventId, 'eventInfo' => (array)$eventInfo]); 
+                //Log::debug("EventInfo from API (raw)", ['eventId' => $eventId, 'eventInfo' => (array)$eventInfo]); 
                 $eventDataForView = [
                     'id' => $eventInfo['id'] ?? $eventId,
                     'title' => $eventInfo['title'] ?? '（タイトル不明）',
                     'memo' => $eventInfo['memo'] ?? '', 
                     'candidates' => $eventInfo['time_options'] ?? [] 
                 ];
-                Log::debug("Data prepared for event view (eventDataForView)", ['eventId' => $eventId, 'data' => $eventDataForView]); 
+                //Log::debug("Data prepared for event view (eventDataForView)", ['eventId' => $eventId, 'data' => $eventDataForView]); 
             } else {
                 $this->Flash->error('イベント詳細の取得に失敗しました。(APIエラー: ' . $eventDetailsResponse->getStatusCode() . ')');
                 return $this->redirect(['controller' => 'Events', 'action' => 'create']);
@@ -60,12 +60,12 @@ class AttendanceController extends AppController
             if ($applicantsResponse->isOk()) {
                 $rawApplicantsList = $applicantsResponse->getJson(); 
                 $processedApplicantsList = [];
-                Log::debug("Raw Applicants List from API", ['eventId' => $eventId, 'list' => (array)$rawApplicantsList]); 
+                //Log::debug("Raw Applicants List from API", ['eventId' => $eventId, 'list' => (array)$rawApplicantsList]); 
 
                 if (is_array($rawApplicantsList) && isset($eventDataForView['candidates']) && is_array($eventDataForView['candidates'])) {
                     $allEventCandidateTimeOptionIds = array_map('intval', array_column($eventDataForView['candidates'], 'id'));
                     foreach ($rawApplicantsList as $applicantDataFromApi) { 
-                        Log::debug("Processing Applicant Raw Data (from API)", ['eventId' => $eventId, 'applicantData' => (array)$applicantDataFromApi]); 
+                        //Log::debug("Processing Applicant Raw Data (from API)", ['eventId' => $eventId, 'applicantData' => (array)$applicantDataFromApi]); 
                         $participantAttendingTimeOptionIdsSet = [];
                         if (isset($applicantDataFromApi['available_times']) && is_array($applicantDataFromApi['available_times'])) {
                             foreach ($applicantDataFromApi['available_times'] as $availableTimeEntry) {
@@ -74,11 +74,12 @@ class AttendanceController extends AppController
                                 }
                             }
                         }
-                        Log::debug("Participant Attending IDs Set", [ 
+                        /*Log::debug("Participant Attending IDs Set", [ 
                             'eventId' => $eventId,
                             'applicant_name' => $applicantDataFromApi['name'] ?? ($applicantDataFromApi['id'] ?? 'Unknown ID'),
                             'set' => $participantAttendingTimeOptionIdsSet
-                        ]);
+                        ]); 
+                        */
 
                         $reconstructedAvailableTimesForView = [];
                         $attendanceMarksForJs = [];
@@ -126,13 +127,13 @@ class AttendanceController extends AppController
     {
         $this->request->allowMethod(['post']);
         $data = $this->request->getData();
-        Log::debug('Data received in submit() action:', $data);
+        //Log::debug('Data received in submit() action:', $data);
 
         $eventId = $data['event_id'] ?? null;
         $name = trim($data['name'] ?? '');
         $commentFromForm = trim($data['comment'] ?? '');
         $applicantId = $data['applicant_id'] ?? null;
-        Log::debug('Applicant ID extracted from form data:', ['applicant_id_in_controller' => $applicantId]);
+        //Log::debug('Applicant ID extracted from form data:', ['applicant_id_in_controller' => $applicantId]);
 
         // バリデーション
         if (!$eventId || $name === '' || $commentFromForm === '') {
@@ -148,7 +149,7 @@ class AttendanceController extends AppController
                 }
             }
         }
-        Log::debug("Selected available time IDs for submission:", $selectedAvailableTimeIds);
+        //Log::debug("Selected available time IDs for submission:", $selectedAvailableTimeIds);
 
         // HTTPクライアントのインスタンスはここで作成し、各メソッドに渡すこともできますし、
         // 各メソッド内で個別に作成することもできます。今回は各メソッド内で作成します。
@@ -167,7 +168,7 @@ class AttendanceController extends AppController
      */
     private function _executeUpdateApplicant(string $eventId, string $applicantId, array $availableTimes, string $memo)
     {
-        Log::debug('Executing UPDATE (PATCH) logic for applicant_id: ' . $applicantId);
+        //Log::debug('Executing UPDATE (PATCH) logic for applicant_id: ' . $applicantId);
         
         $payload = [
             'available_times' => $availableTimes,
@@ -178,7 +179,7 @@ class AttendanceController extends AppController
         $successMessage = '出欠情報を更新しました。';
         $failureMessagePrefix = '出欠情報の更新に失敗しました。';
 
-        Log::debug("API Request (PATCH)", ['url' => $apiUrl, 'payload' => $payload]);
+        //Log::debug("API Request (PATCH)", ['url' => $apiUrl, 'payload' => $payload]);
 
         try {
             $response = $http->patch($apiUrl, json_encode($payload), [
@@ -214,15 +215,14 @@ class AttendanceController extends AppController
                     $flashErrorMessage .= "\n" . $response->getReasonPhrase();
                 }
                 $this->Flash->error($flashErrorMessage);
-                Log::warning("Failed to update attendance. API error {$statusCode}.", [
+                /*Log::warning("Failed to update attendance. API error {$statusCode}.", [
                     'applicant_id' => $applicantId, 'payload' => $payload, 'response_body' => (string)$response->getBody()
                 ]);
+                */
             }
         } catch (\Exception $e) {
             $this->Flash->error('出欠情報の更新中に予期せぬ通信エラーが発生しました。');
-            Log::error("Connection error while updating attendance for applicant_id {$applicantId}.", [
-                'error' => $e->getMessage(), 'payload' => $payload
-            ]);
+             
         }
         return $this->redirect(['action' => 'attend', $eventId]);
     }
@@ -232,7 +232,7 @@ class AttendanceController extends AppController
      */
     private function _executeCreateApplicant(string $eventId, string $name, array $availableTimes, string $memo)
     {
-        Log::debug('Executing CREATE (POST) logic');
+        //Log::debug('Executing CREATE (POST) logic');
 
         $payload = [
             'event_id' => (int)$eventId,
@@ -245,7 +245,7 @@ class AttendanceController extends AppController
         $successMessage = '出欠情報を送信しました。';
         $failureMessagePrefix = '出欠情報の送信に失敗しました。';
 
-        Log::debug("API Request (POST)", ['url' => $apiUrl, 'payload' => $payload]);
+        //Log::debug("API Request (POST)", ['url' => $apiUrl, 'payload' => $payload]);
 
         try {
             $response = $http->post($apiUrl, json_encode($payload), [
@@ -281,15 +281,19 @@ class AttendanceController extends AppController
                     $flashErrorMessage .= "\n" . $response->getReasonPhrase();
                 }
                 $this->Flash->error($flashErrorMessage);
-                Log::warning("Failed to create attendance. API error {$statusCode}.", [
-                    'payload' => $payload, 'response_body' => (string)$response->getBody()
-                ]);
+                /**
+                 * Log::warning("Failed to create attendance. API error {$statusCode}.", [
+                * 'payload' => $payload, 'response_body' => (string)$response->getBody()
+                *]);
+                */
             }
         } catch (\Exception $e) {
             $this->Flash->error('出欠情報の送信中に予期せぬ通信エラーが発生しました。');
-            Log::error("Connection error while creating attendance.", [
-                'error' => $e->getMessage(), 'payload' => $payload
-            ]);
+            /**
+             * Log::error("Connection error while creating attendance.", [
+             * 'error' => $e->getMessage(), 'payload' => $payload
+             *]);
+             */
         }
         return $this->redirect(['action' => 'attend', $eventId]);
     }

@@ -42,10 +42,16 @@
             margin-left: 10px;
             border: none;
             cursor: pointer;
+            text-transform: none;
         }
         .button-clear:hover {
             background-color: #5a6268;
+            text-transform: none;
         }
+        .load-attendance-btn {
+         text-transform: none !important;
+        }
+
     </style>
 </head>
 <body>
